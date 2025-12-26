@@ -226,7 +226,77 @@ backend:
         comment: "GET /api/orders - Successfully retrieves user orders with authentication"
 
 frontend:
-  # Frontend testing not performed as per instructions
+  - task: "Homepage & Navigation"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/HomePage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to test homepage loads with products from API, category bar visibility, hero banner carousel, and product sections"
+
+  - task: "Product Browsing & Search"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/CategoryPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to test category filtering, product search functionality, and product detail page navigation"
+
+  - task: "Cart Functionality"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/CartPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to test add to cart, cart count updates, quantity changes, and remove from cart functionality"
+
+  - task: "Wishlist Functionality"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/WishlistPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to test add to wishlist, wishlist page display, and remove from wishlist functionality"
+
+  - task: "Authentication Flow"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/LoginPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to test signup, login, logout flows and authentication state management"
+
+  - task: "Checkout & Orders Flow"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/CheckoutPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Need to test checkout process, order placement, and orders page display"
 
 metadata:
   created_by: "testing_agent"
