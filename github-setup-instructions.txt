@@ -1,0 +1,104 @@
+=======================================================
+  FLIPKART CLONE - GITHUB SETUP INSTRUCTIONS
+=======================================================
+
+Step 1: Create New GitHub Repository
+-------------------------------------
+1. GitHub par login karein: https://github.com
+2. "New Repository" button click karein
+3. Repository name: flipkart-clone (ya koi bhi naam)
+4. Public ya Private select karein
+5. "Create repository" click karein
+
+
+Step 2: Local Git Setup (Apne Computer Par)
+--------------------------------------------
+Terminal/Command Prompt open karein aur ye commands run karein:
+
+# Extract zip file
+unzip flipkart-clone-complete.zip
+cd flipkart-clone
+
+# Git initialize karein
+git init
+
+# .gitignore file banayein
+cat > .gitignore << 'GITIGNORE'
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+*.pyc
+
+# Environment files (IMPORTANT: Don't commit API keys)
+backend/.env
+frontend/.env
+
+# Build files
+frontend/build/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+GITIGNORE
+
+# Files add karein
+git add .
+
+# First commit
+git commit -m "Initial commit: Flipkart clone with Razorpay integration"
+
+# GitHub repository connect karein (Replace YOUR-USERNAME and REPO-NAME)
+git remote add origin https://github.com/YOUR-USERNAME/REPO-NAME.git
+
+# Code push karein
+git branch -M main
+git push -u origin main
+
+
+Step 3: Environment Variables Setup (GitHub Secrets)
+-----------------------------------------------------
+IMPORTANT: API keys ko safely store karein
+
+GitHub Repository Settings mein:
+1. Settings > Secrets and variables > Actions
+2. "New repository secret" click karein
+3. Ye secrets add karein:
+
+   RAZORPAY_KEY_ID: rzp_live_RpahFGT2cK7dVH
+   RAZORPAY_KEY_SECRET: D2nObUZvA1ym1ClHRBqaqr25
+   JWT_SECRET: (koi bhi secure string)
+
+
+Step 4: README Update
+---------------------
+GitHub par README.md file automatically show hoga with:
+- Complete setup instructions
+- Installation guide
+- API documentation
+- Features list
+
+
+=======================================================
+  ALTERNATIVE: Direct GitHub Upload
+=======================================================
+
+Agar Git command use nahi karna chahte:
+
+1. GitHub repository page par jaayein
+2. "Add file" > "Upload files" click karein
+3. Zip extract karke saari files drag & drop karein
+4. Commit message likhein: "Initial commit"
+5. "Commit changes" click karein
+
+Note: .env files manually create karni padegi with API keys
+
+
+=======================================================
+  NEED HELP?
+=======================================================
+
+Agar koi step unclear hai ya error aaye, bataiye!
+Main step-by-step guide karunga.
+
