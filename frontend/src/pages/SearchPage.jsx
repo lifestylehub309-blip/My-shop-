@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { searchProducts } from '../mockData';
+import { productsAPI } from '../services/api';
 import { Star, Zap, Search as SearchIcon } from 'lucide-react';
 import { Card } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -11,7 +11,26 @@ const SearchPage = () => {
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   const [query, setQuery] = useState(initialQuery);
-  const [results, setResults] = useState(searchProducts(initialQuery));
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (initialQuery) {
+      performSearch(initialQuery);
+    }
+  }, [initialQuery]);
+
+  const performSearch = async (searchQuery) => {
+    setLoading(true);
+    try {
+      const response = await productsAPI.search(searchQuery);
+      setResults(response.data);
+    } catch (error) {
+      console.error('Error searching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatPrice = (price) => {
     return `₹${price.toLocaleString('en-IN')}`;
