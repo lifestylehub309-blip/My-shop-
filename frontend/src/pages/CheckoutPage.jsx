@@ -72,34 +72,31 @@ const CheckoutPage = () => {
     setStep(2);
   };
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
-
   const handlePayment = async () => {
     setLoading(true);
     
-    // Load Razorpay script
-    const res = await loadRazorpayScript();
-    if (!res) {
-      toast({
-        title: "Error",
-        description: "Failed to load payment gateway. Please try again.",
-        variant: "destructive"
-      });
-      setLoading(false);
-      return;
-    }
+    try {
+      // Create order items
+      const orderItems = cart.map(item => ({
+        productId: item.id,
+        name: item.name,
+        image: item.image,
+        price: item.price,
+        quantity: item.quantity
+      }));
 
-    // For now, simulate payment success
-    // In production, this will call backend API to create Razorpay order
-    setTimeout(() => {
+      // Create order
+      const orderData = {
+        items: orderItems,
+        totalAmount: cartTotal,
+        shippingAddress: address,
+        paymentMethod: paymentMethod,
+        paymentId: paymentMethod === 'cod' ? null : `mock_payment_${Date.now()}`
+      };
+
+      const response = await ordersAPI.create(orderData);
+      
+      // Success
       setLoading(false);
       setStep(3);
       clearCart();
@@ -107,7 +104,14 @@ const CheckoutPage = () => {
         title: "Order Placed Successfully!",
         description: "Your order has been confirmed.",
       });
-    }, 2000);
+    } catch (error) {
+      setLoading(false);
+      toast({
+        title: "Error",
+        description: error.response?.data?.detail || "Failed to place order. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
