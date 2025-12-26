@@ -122,7 +122,7 @@ async def get_products(
         query["categoryId"] = category
     
     products = await products_collection.find(query).skip(skip).limit(limit).to_list(limit)
-    return products
+    return convert_objectid_to_str(products)
 
 @api_router.get("/products/search")
 async def search_products(q: str):
@@ -135,21 +135,30 @@ async def search_products(q: str):
         ]
     }
     products = await products_collection.find(query).to_list(100)
-    return products
+    return convert_objectid_to_str(products)
 
 @api_router.get("/products/category/{category_id}")
 async def get_products_by_category(category_id: int):
     """Get products by category ID"""
     products = await products_collection.find({"categoryId": category_id}).to_list(100)
-    return products
+    return convert_objectid_to_str(products)
 
 @api_router.get("/products/{product_id}")
 async def get_product(product_id: str):
     """Get single product by ID"""
+    # Try to find by id field first, then by _id
     product = await products_collection.find_one({"id": product_id})
     if not product:
+        # Try finding by _id if it's a valid ObjectId
+        try:
+            product = await products_collection.find_one({"_id": ObjectId(product_id)})
+        except:
+            pass
+    
+    if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    return product
+    
+    return convert_objectid_to_str(product)
 
 # ============== AUTH API ==============
 @api_router.post("/auth/signup", response_model=UserResponse)
