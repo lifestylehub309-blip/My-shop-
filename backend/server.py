@@ -267,25 +267,82 @@ async def get_order(order_id: str, user_id: str = Depends(get_current_user)):
     
     return convert_objectid_to_str(order)
 
-# ============== PAYMENT API (Mock for now) ==============
+# ============== PAYMENT API (Razorpay Integration) ==============
+import razorpay
+import hmac
+import hashlib
+
+# Initialize Razorpay client
+razorpay_key_id = os.getenv("RAZORPAY_KEY_ID")
+razorpay_key_secret = os.getenv("RAZORPAY_KEY_SECRET")
+
+if razorpay_key_id and razorpay_key_secret:
+    razorpay_client = razorpay.Client(auth=(razorpay_key_id, razorpay_key_secret))
+    logger.info("Razorpay client initialized successfully")
+else:
+    razorpay_client = None
+    logger.warning("Razorpay credentials not found, payment will be in mock mode")
+
 @api_router.post("/payment/create-order")
 async def create_payment_order(payment_data: PaymentOrderCreate):
-    """Create Razorpay order - Mock implementation"""
-    # In production, this will call Razorpay API
-    # For now, return mock order
-    import uuid
-    return {
-        "orderId": f"order_{uuid.uuid4().hex[:12]}",
-        "amount": payment_data.amount * 100,  # Convert to paise
-        "currency": "INR"
-    }
+    """Create Razorpay order"""
+    try:
+        if not razorpay_client:
+            # Fallback to mock if credentials not available
+            import uuid
+            return {
+                "orderId": f"order_{uuid.uuid4().hex[:12]}",
+                "amount": int(payment_data.amount * 100),
+                "currency": "INR",
+                "key": razorpay_key_id or "mock_key"
+            }
+        
+        # Create Razorpay order
+        order_data = {
+            "amount": int(payment_data.amount * 100),  # Convert to paise
+            "currency": "INR",
+            "payment_capture": 1  # Auto capture
+        }
+        
+        order = razorpay_client.order.create(data=order_data)
+        
+        return {
+            "orderId": order["id"],
+            "amount": order["amount"],
+            "currency": order["currency"],
+            "key": razorpay_key_id
+        }
+    except Exception as e:
+        logger.error(f"Error creating Razorpay order: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create payment order: {str(e)}")
 
 @api_router.post("/payment/verify")
 async def verify_payment(payment_data: PaymentVerify):
-    """Verify Razorpay payment - Mock implementation"""
-    # In production, verify signature with Razorpay
-    # For now, return success
-    return {"status": "success", "message": "Payment verified"}
+    """Verify Razorpay payment signature"""
+    try:
+        if not razorpay_client:
+            # Mock verification
+            return {"status": "success", "message": "Payment verified (mock mode)"}
+        
+        # Verify signature
+        params_dict = {
+            'razorpay_order_id': payment_data.razorpay_order_id,
+            'razorpay_payment_id': payment_data.razorpay_payment_id,
+            'razorpay_signature': payment_data.razorpay_signature
+        }
+        
+        razorpay_client.utility.verify_payment_signature(params_dict)
+        
+        return {
+            "status": "success",
+            "message": "Payment verified successfully",
+            "payment_id": payment_data.razorpay_payment_id
+        }
+    except razorpay.errors.SignatureVerificationError:
+        raise HTTPException(status_code=400, detail="Invalid payment signature")
+    except Exception as e:
+        logger.error(f"Error verifying payment: {e}")
+        raise HTTPException(status_code=500, detail=f"Payment verification failed: {str(e)}")
 
 # Include the router in the main app
 app.include_router(api_router)
