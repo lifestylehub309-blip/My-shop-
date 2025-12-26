@@ -324,15 +324,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Homepage & Navigation"
-    - "Product Browsing & Search"
-    - "Cart Functionality"
-    - "Wishlist Functionality"
-    - "Authentication Flow"
-    - "Checkout & Orders Flow"
+    - "All frontend user flows tested and working"
   stuck_tasks: []
   test_all: true
-  test_priority: "high_first"
+  test_priority: "completed"
 
 agent_communication:
   - agent: "testing"
