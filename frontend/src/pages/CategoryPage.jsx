@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getProductsByCategory, categories } from '../mockData';
+import { productsAPI, categoriesAPI } from '../services/api';
 import { Star, Zap, SlidersHorizontal } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
@@ -15,13 +15,43 @@ import {
 
 const CategoryPage = () => {
   const { categoryId } = useParams();
-  const allProducts = getProductsByCategory(categoryId);
-  const category = categories.find(c => c.id === parseInt(categoryId));
+  const [allProducts, setAllProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [category, setCategory] = useState(null);
   
   const [sortBy, setSortBy] = useState('popularity');
   const [priceRange, setPriceRange] = useState([]);
   const [ratingFilter, setRatingFilter] = useState([]);
   const [showFilters, setShowFilters] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productsRes, categoriesRes] = await Promise.all([
+          categoryId ? productsAPI.getByCategory(categoryId) : productsAPI.getAll(),
+          categoriesAPI.getAll()
+        ]);
+        setAllProducts(productsRes.data);
+        setCategories(categoriesRes.data);
+        setCategory(categoriesRes.data.find(c => c.id === parseInt(categoryId)));
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [categoryId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2874f0]"></div>
+      </div>
+    );
+  }
 
   const formatPrice = (price) => {
     return `₹${price.toLocaleString('en-IN')}`;
