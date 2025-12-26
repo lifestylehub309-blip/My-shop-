@@ -107,7 +107,7 @@ async def health():
 async def get_categories():
     """Get all categories"""
     categories = await categories_collection.find().to_list(100)
-    return categories
+    return convert_objectid_to_str(categories)
 
 # ============== PRODUCTS API ==============
 @api_router.get("/products", response_model=List[Product])
