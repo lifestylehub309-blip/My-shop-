@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the Flipkart clone backend APIs including Products, Categories, Auth, and Orders APIs"
+user_problem_statement: "Test the Flipkart clone e-commerce website comprehensively including frontend UI flows and backend API integration"
 
 backend:
   - task: "Products API - Get all products"
