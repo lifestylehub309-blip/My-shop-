@@ -55,9 +55,12 @@ def convert_objectid_to_str(doc):
         return [convert_objectid_to_str(item) for item in doc]
     
     if isinstance(doc, dict):
-        # Convert _id to id if present
-        if "_id" in doc:
+        # Convert _id to id if present and no id field exists
+        if "_id" in doc and "id" not in doc:
             doc["id"] = str(doc["_id"])
+        
+        # Remove _id field
+        if "_id" in doc:
             del doc["_id"]
         
         # Convert any other ObjectId fields
