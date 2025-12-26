@@ -118,26 +118,34 @@ const SearchPage = () => {
 
         {/* Results */}
         <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            {results.length > 0
-              ? `Search Results for "${initialQuery}" (${results.length})`
-              : `No results found for "${initialQuery}"`}
-          </h2>
-
-          {results.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {results.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2874f0]"></div>
             </div>
           ) : (
-            <div className="text-center py-12">
-              <SearchIcon className="h-24 w-24 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-600 mb-6">Try different keywords or browse categories</p>
-              <Button onClick={() => navigate('/')} className="bg-[#2874f0] hover:bg-[#1c5dbf]">
-                Go to Home
-              </Button>
-            </div>
+            <>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                {results.length > 0
+                  ? `Search Results for "${initialQuery}" (${results.length})`
+                  : `No results found for "${initialQuery}"`}
+              </h2>
+
+              {results.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                  {results.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <SearchIcon className="h-24 w-24 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-6">Try different keywords or browse categories</p>
+                  <Button onClick={() => navigate('/')} className="bg-[#2874f0] hover:bg-[#1c5dbf]">
+                    Go to Home
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
