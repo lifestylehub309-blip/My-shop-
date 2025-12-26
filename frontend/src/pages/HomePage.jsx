@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { banners, products, categories } from '../mockData';
+import { banners } from '../mockData';
+import { productsAPI } from '../services/api';
 import { Star, TrendingUp, Zap } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
@@ -13,9 +14,38 @@ import {
 } from '../components/ui/carousel';
 
 const HomePage = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await productsAPI.getAll();
+        setProducts(response.data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const topDeals = products.filter(p => p.discount >= 40).slice(0, 6);
   const electronics = products.filter(p => p.categoryId === 1).slice(0, 6);
   const fashion = products.filter(p => p.categoryId === 2).slice(0, 6);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2874f0] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
 
   const formatPrice = (price) => {
     return `₹${price.toLocaleString('en-IN')}`;
