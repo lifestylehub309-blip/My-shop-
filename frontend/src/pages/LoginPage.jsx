@@ -39,7 +39,7 @@ const LoginPage = () => {
     } catch (error) {
       toast({
         title: "Login Failed",
-        description: "Invalid credentials",
+        description: error.message || "Invalid credentials",
         variant: "destructive"
       });
     } finally {
