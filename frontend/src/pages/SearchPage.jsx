@@ -39,8 +39,7 @@ const SearchPage = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      const searchResults = searchProducts(query);
-      setResults(searchResults);
+      performSearch(query);
       navigate(`/search?q=${encodeURIComponent(query)}`);
     }
   };
