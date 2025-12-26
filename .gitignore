@@ -41,3 +41,7 @@ htmlcov/
 *.swo
 *~
 *.zip
+-e 
+# Environment files
+*.env
+*.env.*
