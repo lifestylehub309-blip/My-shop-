@@ -306,9 +306,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "All backend APIs tested and working"
+    - "Homepage & Navigation"
+    - "Product Browsing & Search"
+    - "Cart Functionality"
+    - "Wishlist Functionality"
+    - "Authentication Flow"
+    - "Checkout & Orders Flow"
   stuck_tasks: []
-  test_all: false
+  test_all: true
   test_priority: "high_first"
 
 agent_communication:
