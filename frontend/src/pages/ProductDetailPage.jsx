@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProductById } from '../mockData';
+import { productsAPI } from '../services/api';
 import { useCart } from '../context/CartContext';
 import { Star, Heart, Zap, ShoppingCart, Truck, Shield } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -10,10 +10,34 @@ import { toast } from '../hooks/use-toast';
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const product = getProductById(id);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { addToCart, addToWishlist, isInWishlist } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await productsAPI.getById(id);
+        setProduct(response.data);
+      } catch (error) {
+        console.error('Error fetching product:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2874f0]"></div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
