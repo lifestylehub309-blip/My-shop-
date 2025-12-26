@@ -26,7 +26,7 @@ const CheckoutPage = () => {
     state: ''
   });
 
-  const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [paymentMethod, setPaymentMethod] = useState('razorpay');
 
   const formatPrice = (price) => {
     return `₹${price.toLocaleString('en-IN')}`;
