@@ -7,6 +7,7 @@ import logging
 from pathlib import Path
 from typing import List, Optional
 from datetime import datetime
+from bson import ObjectId
 
 from models import (
     Product, ProductCreate, Category, 
