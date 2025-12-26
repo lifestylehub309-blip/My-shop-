@@ -246,15 +246,23 @@ async def create_order(order_data: OrderCreate, user_id: str = Depends(get_curre
 async def get_user_orders(user_id: str = Depends(get_current_user)):
     """Get all orders for current user"""
     orders = await orders_collection.find({"userId": user_id}).sort("createdAt", -1).to_list(100)
-    return orders
+    return convert_objectid_to_str(orders)
 
 @api_router.get("/orders/{order_id}", response_model=Order)
 async def get_order(order_id: str, user_id: str = Depends(get_current_user)):
     """Get single order details"""
     order = await orders_collection.find_one({"id": order_id, "userId": user_id})
     if not order:
+        # Try finding by _id if it's a valid ObjectId
+        try:
+            order = await orders_collection.find_one({"_id": ObjectId(order_id), "userId": user_id})
+        except:
+            pass
+    
+    if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    return order
+    
+    return convert_objectid_to_str(order)
 
 # ============== PAYMENT API (Mock for now) ==============
 @api_router.post("/payment/create-order")
