@@ -76,39 +76,138 @@ const CheckoutPage = () => {
     setLoading(true);
     
     try {
-      // Create order items
-      const orderItems = cart.map(item => ({
-        productId: item.id,
-        name: item.name,
-        image: item.image,
-        price: item.price,
-        quantity: item.quantity
-      }));
+      if (paymentMethod === 'cod') {
+        // Cash on Delivery - Direct order creation
+        const orderItems = cart.map(item => ({
+          productId: item.id,
+          name: item.name,
+          image: item.image,
+          price: item.price,
+          quantity: item.quantity
+        }));
 
-      // Create order
-      const orderData = {
-        items: orderItems,
-        totalAmount: cartTotal,
-        shippingAddress: address,
-        paymentMethod: paymentMethod,
-        paymentId: paymentMethod === 'cod' ? null : `mock_payment_${Date.now()}`
+        const orderData = {
+          items: orderItems,
+          totalAmount: cartTotal,
+          shippingAddress: address,
+          paymentMethod: 'cod',
+          paymentId: null
+        };
+
+        await ordersAPI.create(orderData);
+        
+        setLoading(false);
+        setStep(3);
+        clearCart();
+        toast({
+          title: "Order Placed Successfully!",
+          description: "Your order has been confirmed. You will pay on delivery.",
+        });
+        return;
+      }
+
+      // Razorpay Payment Flow
+      // Step 1: Create Razorpay order
+      const paymentOrderResponse = await paymentAPI.createOrder(cartTotal);
+      const { orderId, amount, currency, key } = paymentOrderResponse.data;
+
+      // Step 2: Load Razorpay script
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      document.body.appendChild(script);
+
+      script.onload = () => {
+        // Step 3: Initialize Razorpay checkout
+        const options = {
+          key: key,
+          amount: amount,
+          currency: currency,
+          order_id: orderId,
+          name: 'Flipkart Clone',
+          description: 'Order Payment',
+          prefill: {
+            name: address.fullName,
+            email: user?.email || '',
+            contact: address.phone
+          },
+          theme: {
+            color: '#2874f0'
+          },
+          handler: async function (response) {
+            try {
+              // Step 4: Verify payment
+              await paymentAPI.verify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature
+              });
+
+              // Step 5: Create order in database
+              const orderItems = cart.map(item => ({
+                productId: item.id,
+                name: item.name,
+                image: item.image,
+                price: item.price,
+                quantity: item.quantity
+              }));
+
+              const orderData = {
+                items: orderItems,
+                totalAmount: cartTotal,
+                shippingAddress: address,
+                paymentMethod: 'razorpay',
+                paymentId: response.razorpay_payment_id
+              };
+
+              await ordersAPI.create(orderData);
+              
+              setLoading(false);
+              setStep(3);
+              clearCart();
+              toast({
+                title: "Payment Successful!",
+                description: "Your order has been confirmed.",
+              });
+            } catch (error) {
+              setLoading(false);
+              toast({
+                title: "Payment Verification Failed",
+                description: "Please contact support with your payment ID: " + response.razorpay_payment_id,
+                variant: "destructive"
+              });
+            }
+          },
+          modal: {
+            ondismiss: function() {
+              setLoading(false);
+              toast({
+                title: "Payment Cancelled",
+                description: "You cancelled the payment process.",
+                variant: "destructive"
+              });
+            }
+          }
+        };
+
+        const razorpayInstance = new window.Razorpay(options);
+        razorpayInstance.open();
       };
 
-      const response = await ordersAPI.create(orderData);
-      
-      // Success
-      setLoading(false);
-      setStep(3);
-      clearCart();
-      toast({
-        title: "Order Placed Successfully!",
-        description: "Your order has been confirmed.",
-      });
+      script.onerror = () => {
+        setLoading(false);
+        toast({
+          title: "Error",
+          description: "Failed to load payment gateway. Please try again.",
+          variant: "destructive"
+        });
+      };
+
     } catch (error) {
       setLoading(false);
       toast({
         title: "Error",
-        description: error.response?.data?.detail || "Failed to place order. Please try again.",
+        description: error.response?.data?.detail || "Failed to process payment. Please try again.",
         variant: "destructive"
       });
     }
