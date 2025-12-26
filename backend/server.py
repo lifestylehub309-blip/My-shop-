@@ -45,6 +45,32 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# ============== HELPER FUNCTIONS ==============
+def convert_objectid_to_str(doc):
+    """Convert MongoDB ObjectId to string and handle id field"""
+    if doc is None:
+        return None
+    
+    if isinstance(doc, list):
+        return [convert_objectid_to_str(item) for item in doc]
+    
+    if isinstance(doc, dict):
+        # Convert _id to id if present
+        if "_id" in doc:
+            doc["id"] = str(doc["_id"])
+            del doc["_id"]
+        
+        # Convert any other ObjectId fields
+        for key, value in doc.items():
+            if isinstance(value, ObjectId):
+                doc[key] = str(value)
+            elif isinstance(value, dict):
+                doc[key] = convert_objectid_to_str(value)
+            elif isinstance(value, list):
+                doc[key] = convert_objectid_to_str(value)
+    
+    return doc
+
 # ============== INITIALIZATION ==============
 @app.on_event("startup")
 async def startup_db():
