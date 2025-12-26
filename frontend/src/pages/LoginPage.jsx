@@ -52,17 +52,17 @@ const LoginPage = () => {
     setLoading(true);
     
     try {
-      const { signup } = await import('../context/AuthContext');
-      // This will be replaced with actual API call
+      const { signup } = require('../context/AuthContext');
+      await signup(signupData.name, signupData.email, signupData.password, signupData.phone);
       toast({
         title: "Signup Successful",
         description: "Your account has been created!",
       });
-      setIsLogin(true);
+      navigate('/');
     } catch (error) {
       toast({
         title: "Signup Failed",
-        description: "Something went wrong",
+        description: error.message || "Something went wrong",
         variant: "destructive"
       });
     } finally {
